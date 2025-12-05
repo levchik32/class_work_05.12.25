@@ -8,39 +8,44 @@ namespace topit
   };
   bool operator==(p_t, p_t);
   bool operator!=(p_t, p_t);
-  struct f_t {p_t aa, bb;};
+  struct f_t
+  {
+    p_t aa, bb;
+  };
 
-  struct Idraw
+  struct IDraw
   {
     virtual p_t begin() const = 0;
     virtual p_t next(p_t) const = 0;
     virtual ~IDraw() = default;
   };
 
-  struct Dot: IDraw {
+  struct Dot : IDraw
+  {
     Dot(int x, int y);
     explicit Dot(p_t dd);
     p_t begin() const override;
     p_t next(p_t) const override;
 
     p_t d;
-  }
+  };
 
-  size_t points(const IDraw& d, p_t ** pts, size_t s);
-  f_t fr = frame(p_t *pts, size_t s);
-  char * cnv = canvas(f_r fr, char fill);
-  void paint(char * cnv, f_t ft, p_t p, char fill);
-  void flush(std::ostream&, const char* cnv, f_t fr);
+  size_t points(const IDraw &d, p_t **pts, size_t s);
+  f_t frame(p_t * pts, size_t s);
+  char * canvas(f_t fr, char fill);
+  void paint(char *cnv, f_t ft, p_t p, char fill);
+  void flush(std::ostream &, const char *cnv, f_t fr);
 }
 
 int main()
 {
-  using topit::p_t;
-  using topit::f_t;
   using topit::Dot;
-  IDraw * shps[3] = {};
-  p_t * pts = nullptr;
+  using topit::f_t;
+  using topit::p_t;
+  topit::IDraw *shps[3] = {};
+  p_t *pts = nullptr;
   size_t s = 0;
+  size_t err = 0;
   try
   {
     shps[0] = new Dot(0, 0);
@@ -48,23 +53,23 @@ int main()
     shps[2] = new Dot(-5, -2);
     for (size_t i = 0; i < 3; ++i)
     {
-      s += points(*(shps[i]), &pts, s);
+      s += topit::points(*(shps[i]), &pts, s);
     }
     f_t fr = frame(pts, s);
-    char * cnv = canvas(fr, '.');
+    char *cnv = topit::canvas(fr, '.');
     for (size_t i = 0; i < s; ++i)
     {
       paint(cnv, fr, pts[i], '#');
     }
-    flush(std::cout, cnv, fr)
-    delete [] cnv;
+    flush(std::cout, cnv, fr);
+    delete[] cnv;
   }
   catch (...)
   {
     err = 2;
-    std::cerr << "Bad drawing\n"
+    std::cerr << "Bad drawing\n";
   }
-  delete [] pts;
+  delete[] pts;
   delete shps[0];
   delete shps[1];
   delete shps[2];
@@ -78,7 +83,7 @@ bool topit::operator==(p_t a, p_t b)
 
 bool topit::operator!=(p_t a, p_t b)
 {
-  return 1(a == b);
+  return (a == b);
 }
 
 topit::p_t topit::Dot::begin() const
@@ -86,14 +91,14 @@ topit::p_t topit::Dot::begin() const
   return d;
 }
 
-topit::Dot::Dot(int x, int y):
-  IDraw(),
-  d{x, y}
-{}
-topit::Dot::Dot(p_t dd):
-  Idraw(),
-  d{dd}
-{}
+topit::Dot::Dot(int x, int y) : IDraw(),
+                                d{x, y}
+{
+}
+topit::Dot::Dot(p_t dd) : IDraw(),
+                          d{dd}
+{
+}
 
 topit::p_t topit::Dot::next(p_t prev) const
 {
@@ -103,4 +108,3 @@ topit::p_t topit::Dot::next(p_t prev) const
   }
   return d;
 }
-
