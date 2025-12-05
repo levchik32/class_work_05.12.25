@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstddef>
 
 namespace topit
 {
@@ -28,6 +29,28 @@ namespace topit
     p_t next(p_t) const override;
 
     p_t d;
+  };
+
+  struct Vline : IDraw
+  {
+    Vline(int x, int y, size_t ll);
+    Vline(p_t dd, size_t ll);
+    p_t begin() const override;
+    p_t next(p_t dd) const override;
+
+    p_t d;
+    size_t l;
+  };
+
+  struct Hline : IDraw
+  {
+    Hline(int x, int y, size_t ll);
+    Hline(p_t dd, size_t ll);
+    p_t begin() const override;
+    p_t next(p_t dd) const override;
+
+    p_t d;
+    size_t l;
   };
 
   size_t points(const IDraw &d, p_t **pts, size_t s);
@@ -76,6 +99,7 @@ int main()
   return err;
 }
 
+//
 bool topit::operator==(p_t a, p_t b)
 {
   return a.x == b.x && a.y == b.y;
@@ -86,19 +110,18 @@ bool topit::operator!=(p_t a, p_t b)
   return (a == b);
 }
 
+//Dot
 topit::p_t topit::Dot::begin() const
 {
   return d;
 }
 
 topit::Dot::Dot(int x, int y) : IDraw(),
-                                d{x, y}
-{
-}
+  d{x, y}
+{}
 topit::Dot::Dot(p_t dd) : IDraw(),
-                          d{dd}
-{
-}
+  d{dd}
+{}
 
 topit::p_t topit::Dot::next(p_t prev) const
 {
@@ -107,4 +130,62 @@ topit::p_t topit::Dot::next(p_t prev) const
     throw std::logic_error("bad impl");
   }
   return d;
+}
+
+//Vline
+topit::Vline::Vline(int x, int y, size_t ll):
+  IDraw(),
+  d{x, y}, l(ll)
+{}
+
+topit::Vline::Vline(p_t dd, size_t ll):
+  IDraw(),
+  d{dd}, l(ll)
+{}
+
+topit::p_t topit::Vline::begin() const
+{
+  return d;
+}
+
+topit::p_t topit::Vline::next(p_t dd) const
+{
+  if (dd.x != d.x || dd.y < d.y)
+  {
+    throw std::logic_error("bad impl");
+  }
+  if (dd.y - d.y + 1 == l)
+  {
+    return d;
+  }
+  return {d.x, d.y + 1};
+}
+
+//Hline
+topit::Hline::Hline(int x, int y, size_t ll):
+  IDraw(),
+  d{x, y}, l(ll)
+{}
+
+topit::Hline::Hline(p_t dd, size_t ll):
+  IDraw(),
+  d{dd}, l(ll)
+{}
+
+topit::p_t topit::Hline::begin() const
+{
+  return d;
+}
+
+topit::p_t topit::Hline::next(p_t dd) const
+{
+  if (dd.y != d.y || dd.x < d.x)
+  {
+    throw std::logic_error("bad impl");
+  }
+  if (dd.x - d.x + 1 == l)
+  {
+    return d;
+  }
+  return {d.x + 1, d.y};
 }
