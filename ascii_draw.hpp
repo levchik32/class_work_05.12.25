@@ -4,4 +4,5 @@
 #include "idraw.hpp"
 #include "dot.hpp"
 #include "canvas.hpp"
+#include "lines.cpp"
 #endif
