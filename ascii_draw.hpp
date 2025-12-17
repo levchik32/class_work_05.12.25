@@ -5,4 +5,5 @@
 #include "dot.hpp"
 #include "canvas.hpp"
 #include "lines.cpp"
+#include "cooler_lines.hpp"
 #endif

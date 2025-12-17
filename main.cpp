@@ -13,8 +13,8 @@ int main()
   try
   {
     shps[0] = new Dot(0, 0);
-    shps[1] = new Dot(5, 7);
-    shps[2] = new Dot(-5, -2);
+    shps[1] = new topit::Cline(2, 2, 33, 7);
+    shps[2] = new Dot(35, 9);
     for (size_t i = 0; i < 3; ++i)
     {
       s += topit::points(*(shps[i]), std::addressof(pts), s);
