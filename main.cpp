@@ -1,36 +1,8 @@
 #include <iostream>
-#include <cstddef>
+#include "ascii_draw.hpp"
 
 namespace topit
 {
-  struct p_t
-  {
-    int x, y;
-  };
-  bool operator==(p_t, p_t);
-  bool operator!=(p_t, p_t);
-  struct f_t
-  {
-    p_t aa, bb;
-  };
-
-  struct IDraw
-  {
-    virtual p_t begin() const = 0;
-    virtual p_t next(p_t) const = 0;
-    virtual ~IDraw() = default;
-  };
-
-  struct Dot : IDraw
-  {
-    Dot(int x, int y);
-    explicit Dot(p_t dd);
-    p_t begin() const override;
-    p_t next(p_t) const override;
-
-    p_t d;
-  };
-
   struct Vline : IDraw
   {
     Vline(int x, int y, size_t ll);
@@ -51,13 +23,7 @@ namespace topit
 
     p_t d;
     size_t l;
-  };
-
-  size_t points(const IDraw &d, p_t **pts, size_t s);
-  f_t frame(p_t * pts, size_t s);
-  char * canvas(f_t fr, char fill);
-  void paint(char *cnv, f_t ft, p_t p, char fill);
-  void flush(std::ostream &, const char *cnv, f_t fr);
+  };  
 }
 
 int main()
@@ -76,7 +42,7 @@ int main()
     shps[2] = new Dot(-5, -2);
     for (size_t i = 0; i < 3; ++i)
     {
-      s += topit::points(*(shps[i]), &pts, s);
+      s += topit::points(*(shps[i]), std::addressof(pts), s);
     }
     f_t fr = frame(pts, s);
     char *cnv = topit::canvas(fr, '.');
@@ -87,10 +53,10 @@ int main()
     flush(std::cout, cnv, fr);
     delete[] cnv;
   }
-  catch (...)
+  catch (std::exception &e)
   {
     err = 2;
-    std::cerr << "Bad drawing\n";
+    std::cerr << "Bad drawing\n" << e.what() << '\n';
   }
   delete[] pts;
   delete shps[0];
@@ -99,55 +65,19 @@ int main()
   return err;
 }
 
-//
-bool topit::operator==(p_t a, p_t b)
+// Vline
+topit::Vline::Vline(int x, int y, size_t ll) : IDraw(),
+                                               d{x, y}, l(ll)
 {
-  return a.x == b.x && a.y == b.y;
 }
-
-bool topit::operator!=(p_t a, p_t b)
+topit::Vline::Vline(p_t dd, size_t ll) : IDraw(),
+                                         d{dd}, l(ll)
 {
-  return (a == b);
 }
-
-//Dot
-topit::p_t topit::Dot::begin() const
-{
-  return d;
-}
-
-topit::Dot::Dot(int x, int y) : IDraw(),
-  d{x, y}
-{}
-topit::Dot::Dot(p_t dd) : IDraw(),
-  d{dd}
-{}
-
-topit::p_t topit::Dot::next(p_t prev) const
-{
-  if (prev != begin())
-  {
-    throw std::logic_error("bad impl");
-  }
-  return d;
-}
-
-//Vline
-topit::Vline::Vline(int x, int y, size_t ll):
-  IDraw(),
-  d{x, y}, l(ll)
-{}
-
-topit::Vline::Vline(p_t dd, size_t ll):
-  IDraw(),
-  d{dd}, l(ll)
-{}
-
 topit::p_t topit::Vline::begin() const
 {
   return d;
 }
-
 topit::p_t topit::Vline::next(p_t dd) const
 {
   if (dd.x != d.x || dd.y < d.y)
@@ -161,22 +91,19 @@ topit::p_t topit::Vline::next(p_t dd) const
   return {d.x, d.y + 1};
 }
 
-//Hline
-topit::Hline::Hline(int x, int y, size_t ll):
-  IDraw(),
-  d{x, y}, l(ll)
-{}
-
-topit::Hline::Hline(p_t dd, size_t ll):
-  IDraw(),
-  d{dd}, l(ll)
-{}
-
+// Hline
+topit::Hline::Hline(int x, int y, size_t ll) : IDraw(),
+                                               d{x, y}, l(ll)
+{
+}
+topit::Hline::Hline(p_t dd, size_t ll) : IDraw(),
+                                         d{dd}, l(ll)
+{
+}
 topit::p_t topit::Hline::begin() const
 {
   return d;
 }
-
 topit::p_t topit::Hline::next(p_t dd) const
 {
   if (dd.y != d.y || dd.x < d.x)
@@ -189,3 +116,6 @@ topit::p_t topit::Hline::next(p_t dd) const
   }
   return {d.x + 1, d.y};
 }
+
+
+
